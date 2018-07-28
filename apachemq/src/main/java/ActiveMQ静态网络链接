@@ -1,0 +1,80 @@
+networkConnector是什么，
+在某些场景下，需要多个ActiveMQ的Broker做集群，那么就设计到了Broker到
+Broker的通信，被称为ActiveMQ的networkConnector
+
+networkConnector默认是单向的
+单向：一个Broker在一端发送消息，另外一端接收消息。
+双向：不仅发送消息，也可以从相同的通道来接收消息， 设置参数：duplex=true
+
+discovery概念：一般用来发现远程网络，两种方式：静态和动态发现
+
+static networks
+ 	static networkConnectors用于创建一个静态的配置
+ 	对于网络中多个Broker。格式如下static:(url1,url2,..)
+ 	
+ 配置如下例子：
+ <networkConnectors>
+ 	<networkConnector name="local"
+ 	 uri="static://(tcp://ip:61616,tcp://ip:61617)" duplex=false/>
+ </networkConnectors>
+ 
+ 
+ Broker1 61616 .Broker2 61626
+ Broker1--->Broker2单向
+ 
+ 1、当我们向Broker1发送数据时，发送成功后，我们只能在Broker1中看到，在Broker2中没法看到，这时，数据并没有传到Broker2
+ 2、但我们消费Broker1时，这时Broker1消费了，同样Broker2没有数据
+ 3、我们消费Broker2，看能不能获取到数据。这时Broker1内数据减少，在Broker2中有数据被消费
+ 所以当Broker2消费的时候，才会有数据从Broker1转移到Broker2
+ 4、当我们向Broker2推数据时，能否通过Broker1能不能消费。。通过测试，不可以，原因是duplex是设置为FALSE，为单向的
+ 
+ 
+ 当我们设置成双向的，（消息回流）
+ Broker1<----->Broker2.  duplex=true
+ 1、当我们向Broker1发送数据时，发送成功后，我们只能在Broker1中看到，在Broker2中没法看到，这时，数据并没有传到Broker2
+ 2、但我们消费Broker1时，这时Broker1消费了，同样Broker2没有数据
+ 3、我们消费Broker2，看能不能获取到数据。这时Broker1内数据减少，在Broker2中有数据被消费
+ 所以当Broker2消费的时候，才会有数据从Broker1转移到Broker2
+ 4、当我们向Broker2推数据时，能否通过Broker1能不能消费。。通过测试，不可以，原因是duplex是设置为true，为双向的
+ 
+ duplex双向的概念要理解清楚，不能混淆了
+ 双向：生产者推给A,B的consumer能消费,当生产者推给B,A的consumer能消费，这就是双向
+ 
+ 回流：当A,B中生产者推给A,B的生产者消费，当B没有消费者时，B中消息还没消费完，且A有消费者，那么就B中的消费者就会回流到A中
+ 配置中的目的地策略，两个配置文件都得配
+ 
+ 
+ 在做集群的时候：networkConnector有一些属性配置需要了解：
+ conduitSubscriptions: 默认为true.是否把同一个Broker的多个消费者当成一个消费者来处理
+ dynamicllyIncludedDestinations:默认是空，要包括的目的地。我们可以包含只能传递某个Destination。其他的不接收
+ 
+【prefetchSize】 :默认是1000， 可以持有未确认的最大消息数量。必须于0。我们设置成【1】的时候，就是消费者在消费完确认后，才可以再那消息处理
+可以【优化负载均衡】
+ 
+ 
+ 
+ 如：
+ 
+ 	<!---
+			duplex:指定是否双向【配置消息回流】
+			dynamicOnly:默认false,如果是true,持久订阅被激活时，才创建对应得网路持久订阅，默认是启动时激活
+			decreaseNetworkConsumerPriority:降低网路中消费者的优先级，如果为FALSE，那么和本地的优先级一致
+			conduitSubscriptions 配置是否认为一个broker的多个消费者为一个消费者
+		-->
+		<networkConnectors>
+			<networkConnector name="locals" duplex="true" uri="static://(tcp://127.0.0.1:61626)" 
+			conduitSubscriptions="false" decreaseNetworkConsumerPriority="false">
+				<excludedDestinations>
+					<queue physicalName="my-queue"/>
+				</excludedDestinations>
+				<dynamicallyIncludedDestinations>
+					<queue physicalName="my-queue-dy"/>
+				</dynamicallyIncludedDestinations>
+				<staticallyIncludedDestinations>
+					<queue physicalName="my-queue-st"/>
+				</staticallyIncludedDestinations>
+			</networkConnector>
+		</networkConnectors>
+ 
+ 
+ 

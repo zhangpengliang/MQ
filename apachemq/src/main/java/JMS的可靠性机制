@@ -1,0 +1,25 @@
+1、消息的确认机制
+   消息只有被确认后，才会被成功的消费，分三个阶段，客户接收到消息、客户处理消息、消息被确认
+  （1）、在事务性会话当中，当事务提交时，【确认】自动发生
+  	【非事务性会话中】，要根据应答模式来确认
+  	【Session.AUTO_ACKNOWLEDGE】：当客户从receive方法中返回或者或者从MessageListener.onMessage()中
+  	成功返回时，自动确认
+  	【Session.CLIENT_ACKNOWLEDGE】:客户端确认;客户需要调用msg.acknowledge()来执行确认。注意：当确认一个消息
+  	将自动确认所有已经被会话消费的消息，如，你有10个消息，在第五个消费时确认了，那么你之前已消费的会被确认。
+  	【Session.DUPS_OK_ACKNOWLEDGE】: 会话迟钝的延迟确认提交，可能会导致重复消息，则重复消息的JMSRedlivered就会设置成true
+  	【Session.SESSION_TRANSACTED】:
+  	
+2、JMS消息的提交模式：消息的持久性
+    【PERSISTENT】：持久化，指示这个JMS provider(ActiveMQ)来持久保存消息，不会因为provider的失败而丢失
+    【NON_PERSISTENT】：不要求JMS provider来保存消息
+    
+3、消息优先级
+4、设置消息的过期时间 msg.setJMSExpiration(10000);
+
+5、持久订阅--针对TOPIC
+ 生产者：必须是持久化传递模式
+  消费者：session.createDurableSubscriber(topic, name).
+    
+    
+
+  	

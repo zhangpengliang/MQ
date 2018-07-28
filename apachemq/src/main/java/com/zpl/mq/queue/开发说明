@@ -1,0 +1,4 @@
+在开发过程中，我们可以以QueueSender.java和QueueConsumer.java为例子
+
+1、connection创建之后，必须要调用con.star()方法来链接尤其是消费者。
+	如果消费者没有这个那么就无法接收消息，但是生产者没有这个也可以（无影响）

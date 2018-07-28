@@ -1,0 +1,20 @@
+静态网络链接-network
+1、如何启动多个broker，如何配置
+	【1】:修改conf内文件。
+	【2】:修改activemq.xml里的内容
+		{1}：brokerName-不能重复 localhost改成broker2
+		<broker xmlns="http://activemq.apache.org/schema/core" brokerName="localhost" dataDirectory="${activemq.data}">
+		{2}：数据存放的文件名不能重复：kahadb改成kahadb2
+		<persistenceAdapter>
+            <kahaDB directory="${activemq.data}/kahadb"/>
+        </persistenceAdapter>
+        {3}：涉及到的所有的<transportConnectors>子元素的端口号不能和之前的一样
+        
+          【3】：修改jetty.xml里的端口8161-->8181.端口不能一致
+           <bean id="jettyPort" class="org.apache.activemq.web.WebConsolePort" init-method="start">
+             <!-- the default port number for the web console -->
+        <property name="host" value="0.0.0.0"/>
+        <property name="port" value="8161"/>
+    </bean>
+    
+           【4】：linux下的可以查下都修改写什么

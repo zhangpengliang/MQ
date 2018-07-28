@@ -1,0 +1,19 @@
+链接到ActiveMQ
+
+1、Connector:连接器 包含Client-TO-Broker、Broker-to-Broker.
+	Client-to-Broker
+	MQ允许客户端通过多种协议来链接Broker。配置如下
+	 <transportConnectors>
+            <!-- DOS protection, limit concurrent connections to 1000 and frame size to 100MB -->
+            <transportConnector name="openwire" uri="tcp://0.0.0.0:61616?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
+            <transportConnector name="amqp" uri="amqp://0.0.0.0:5672?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
+            <transportConnector name="stomp" uri="stomp://0.0.0.0:61613?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
+            <transportConnector name="mqtt" uri="mqtt://0.0.0.0:1883?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
+            <transportConnector name="ws" uri="ws://0.0.0.0:61614?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
+     </transportConnectors>
+     
+     1：TCP协议。默认的Broker协议。客户端连接方式：【tcp://ip:port?key=value&key=value】
+     2:我们可以配置一个nio的如： <transportConnector name="nio" uri="nio://0.0.0.0:61618?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
+     
+     
+	

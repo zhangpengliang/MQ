@@ -1,0 +1,24 @@
+duplex双向的概念要理解清楚，不能混淆了
+ 双向：生产者推给A,B的consumer能消费,当生产者推给B,A的consumer能消费，这就是双向
+ 
+ 回流：当A,B中生产者推给A,B的生产者消费，当B没有消费者时，B中消息还没消费完，且A有消费者，那么就B中的消费者就会回流到A中
+ 配置中的目的地策略，两个配置文件都得配
+ 
+ 配置回流
+ 
+ <policyEntry queue=">" enableAudit="false">
+					<networkBridgeFilterFactory>
+						<conditionalNetworkBridgeFilterFactory replayWhenNoConsumers="true"/>
+					</networkBridgeFilterFactory>
+				</policyEntry>
+				
+				
+--------------------------------------------------
+customer消费者集群：链接一个Broker需要使用一个session来创建消费者。
+
+broker集群：network可以作为一个集群，还有就是可以回流，当一个broker没有消费者时，可以将消息回流到上一个
+
+broker高可用的主从模式的集群：JDBC master-slave配置：
+<jdbcPersistenceAdapter datasource="">
+两个broker的配置都得配置，并且DataSource必须是一个数据库。，master会获取到锁，slave等待拿锁，master死了，拿到锁的slave就是master
+
